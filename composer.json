@@ -53,6 +53,9 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "pre-install-cmd": [
+            "@php -r \"if (!is_dir('bootstrap/cache')) mkdir('bootstrap/cache', 0775, true);\""
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump"
         ],
