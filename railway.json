@@ -1,9 +1,8 @@
 {
-  "$schema": "https://railway.com/railway.schema.json",
   "build": {
     "builder": "RAILPACK",
     "buildEnvironment": "V3",
-    "buildCommand": "mkdir -p bootstrap/cache && chmod -R 775 bootstrap/cache && composer install --ignore-platform-reqs --no-dev --no-scripts --optimize-autoloader && php artisan package:discover"
+    "buildCommand": "rm -rf bootstrap/cache && mkdir -p bootstrap/cache && chmod -R 775 bootstrap/cache && npm install --include=dev --no-audit --no-fund && npm run build && rm -rf node_modules && composer install --no-dev --no-scripts --no-interaction --optimize-autoloader && php artisan package:discover"
   },
   "deploy": {
     "runtime": "V2",
@@ -13,6 +12,8 @@
     "ipv6EgressEnabled": false,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10,
+    "healthcheckPath": "/up",
+    "healthcheckTimeout": 100,
     "startCommand": "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=$PORT"
   }
 }
