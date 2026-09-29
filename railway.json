@@ -1,13 +1,18 @@
 {
+  "$schema": "https://railway.com/railway.schema.json",
   "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "mkdir -p bootstrap/cache && chmod -R 775 bootstrap/cache && composer install --no-dev --optimize-autoloader --no-scripts && php artisan package:discover"
+    "builder": "RAILPACK",
+    "buildEnvironment": "V3",
+    "buildCommand": "mkdir -p bootstrap/cache && chmod -R 775 bootstrap/cache && composer install --ignore-platform-reqs --no-dev --no-scripts --optimize-autoloader && php artisan package:discover"
   },
   "deploy": {
-    "startCommand": "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=$PORT",
-    "healthcheckPath": "/",
-    "healthcheckTimeout": 100,
+    "runtime": "V2",
+    "numReplicas": 1,
+    "sleepApplication": false,
+    "useLegacyStacker": false,
+    "ipv6EgressEnabled": false,
     "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
+    "restartPolicyMaxRetries": 10,
+    "startCommand": "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=$PORT"
   }
 }
