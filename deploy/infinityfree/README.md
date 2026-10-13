@@ -57,7 +57,8 @@ directory are writable by PHP using the permissions supported by the host.
 
 In FTP/File Manager, copy `core/.env.example` to `core/.env` and edit it:
 
-- Set `APP_URL` to the exact HTTPS website URL.
+- `APP_URL` is prefilled as `https://zainstore.infinityfree.com`; confirm HTTPS
+  is active for the domain before keeping `SESSION_SECURE_COOKIE=true`.
 - Set `APP_KEY` to a fresh key generated locally with
   `php artisan key:generate --show`; keep it private and do not commit it.
 - Replace the four database settings with the values from the hosting panel.
