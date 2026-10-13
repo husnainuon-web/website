@@ -63,7 +63,13 @@
 
     .sidebar {
         width: 270px;
+        height: 100vh;
         min-height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1050;
+        overflow-y: auto;
 
         background:
             linear-gradient(
@@ -82,6 +88,24 @@
         box-shadow:
             8px 0 30px
             rgba(0, 0, 0, 0.08);
+
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+    }
+
+    .sidebar.is-open {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1040;
+        background: rgba(15, 23, 42, 0.48);
+    }
+
+    .sidebar-overlay[hidden] {
+        display: none;
     }
 
 
@@ -314,6 +338,33 @@
             rgba(15,23,42,0.03);
     }
 
+    .topbar-heading {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+    }
+
+    .menu-toggle {
+        display: inline-flex;
+        width: 44px;
+        height: 44px;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        margin-right: 16px;
+        border: 1px solid #e5ebe7;
+        border-radius: 10px;
+        background: #f8faf9;
+        color: #1f2937;
+        font-size: 22px;
+        transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .menu-toggle:hover {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
 
     .top-label {
         margin: 0;
@@ -529,66 +580,39 @@
     }
 
 
-    /* =====================================================
-       MOBILE
-    ===================================================== */
-
     @media (max-width: 991px) {
-
-        .app-shell {
-            flex-direction: column;
-        }
-
-
-        .sidebar {
-            width: 100%;
-
-            min-height: auto;
-
-            padding: 18px;
-        }
-
-
-        .nav-links {
-            display: grid;
-
-            grid-template-columns:
-                repeat(2, 1fr);
-        }
-
-
         .topbar {
-            flex-direction: column;
-
-            align-items: flex-start;
-
-            gap: 12px;
+            padding: 16px 20px;
         }
-
 
         .content-body {
             padding: 20px;
         }
-
     }
 
 
     @media (max-width: 576px) {
 
-        .nav-links {
-            grid-template-columns: 1fr;
-        }
-
-
         .top-actions {
-            width: 100%;
-
-            justify-content: space-between;
+            gap: 8px;
         }
 
+        .welcome-text {
+            display: none;
+        }
 
-        .brand {
-            padding-bottom: 16px;
+        .topbar .title {
+            font-size: 1.3rem;
+        }
+
+        .top-label {
+            font-size: 9px;
+        }
+
+        .menu-toggle {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
         }
 
     }
@@ -602,6 +626,8 @@
 
 <body>
 
+<div class="sidebar-overlay" id="admin-sidebar-overlay" hidden></div>
+
 <div class="app-shell">
 
 
@@ -609,7 +635,7 @@
      SIDEBAR
 ====================================================== --}}
 
-<aside class="sidebar">
+<aside class="sidebar" id="admin-sidebar">
 
 
     {{-- SPOTLITE BRAND --}}
@@ -816,17 +842,27 @@
     <header class="topbar">
 
 
-        <div>
+        <div class="topbar-heading">
 
-            <p class="top-label">
-                Spital Sport Admin Panel
-            </p>
+            <button
+                type="button"
+                class="menu-toggle"
+                id="admin-menu-toggle"
+                aria-label="Open admin menu"
+                aria-controls="admin-sidebar"
+                aria-expanded="false"
+            >
+                <i class="bi bi-list" aria-hidden="true"></i>
+            </button>
 
-
-            <h1 class="title">
-                @yield('page-title', 'Dashboard')
-            </h1>
-
+            <div>
+                <p class="top-label">
+                    Spital Sport Admin Panel
+                </p>
+                <h1 class="title">
+                    @yield('page-title', 'Dashboard')
+                </h1>
+            </div>
         </div>
 
 
@@ -984,6 +1020,29 @@
 
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+<script>
+    const adminMenuButton = document.getElementById('admin-menu-toggle');
+    const adminSidebar = document.getElementById('admin-sidebar');
+    const adminOverlay = document.getElementById('admin-sidebar-overlay');
+
+    function setAdminMenuOpen(open) {
+        adminSidebar.classList.toggle('is-open', open);
+        adminOverlay.hidden = !open;
+        adminMenuButton.setAttribute('aria-expanded', String(open));
+    }
+
+    adminMenuButton.addEventListener('click', () => {
+        setAdminMenuOpen(!adminSidebar.classList.contains('is-open'));
+    });
+    adminOverlay.addEventListener('click', () => setAdminMenuOpen(false));
+    adminSidebar.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => setAdminMenuOpen(false));
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') setAdminMenuOpen(false);
+    });
 </script>
 
 @yield('scripts')

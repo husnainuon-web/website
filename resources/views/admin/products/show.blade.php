@@ -27,7 +27,7 @@
                 Back to Products
             </a>
 
-            <a href="{{ route('admin.products.edit', $product) }}"
+            <a href="{{ route('admin.products.edit', $product->id) }}"
                class="btn btn-primary rounded-3 px-3">
                 <i class="bi bi-pencil me-1"></i>
                 Edit Product
@@ -110,7 +110,7 @@
 
                         <div class="main-image-box">
 
-                            <img src="{{ asset('storage/' . $product->main_image) }}"
+                            <img src="{{ Storage::disk('public')->url($product->main_image) }}"
                                  alt="{{ $product->name }}"
                                  class="main-product-image">
 
@@ -135,6 +135,32 @@
             </div>
 
 
+
+            {{-- MAIN VIDEO --}}
+            @if($product->main_video)
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+                    <div class="card-header bg-white border-0 pt-4 px-4">
+
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-play-circle me-2 text-primary"></i>
+                            Product Video
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <video controls class="w-100 rounded-3" style="max-height: 360px; background: #000;">
+                            <source src="{{ Storage::disk('public')->url($product->main_video) }}" type="video/mp4">
+                        </video>
+
+                    </div>
+
+                </div>
+
+            @endif
 
             {{-- GALLERY --}}
             @if($product->images && $product->images->count())
@@ -161,7 +187,7 @@
 
                                     <div class="gallery-box">
 
-                                        <img src="{{ asset('storage/' . $image->image) }}"
+                                        <img src="{{ Storage::disk('public')->url($image->image) }}"
                                              alt="{{ $product->name }}"
                                              class="gallery-image">
 
@@ -736,7 +762,7 @@
                 <div class="d-flex flex-wrap gap-2">
 
                     {{-- EDIT --}}
-                    <a href="{{ route('admin.products.edit', $product) }}"
+                    <a href="{{ route('admin.products.edit', $product->id) }}"
                        class="btn btn-primary rounded-3 px-4">
 
                         <i class="bi bi-pencil me-1"></i>
@@ -747,7 +773,7 @@
 
 
                     {{-- DELETE --}}
-                    <form action="{{ route('admin.products.destroy', $product) }}"
+                    <form action="{{ route('admin.products.destroy', $product->id) }}"
                           method="POST"
                           onsubmit="return confirm('Are you sure you want to delete this product? This action cannot be undone.');">
 

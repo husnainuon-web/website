@@ -245,7 +245,7 @@
 
                     <form
                         method="POST"
-                        action="{{ route('admin.support.update', $supportTicket) }}"
+                        action="{{ route('admin.support.update', $supportTicket->id) }}"
                     >
 
                         @csrf

@@ -283,6 +283,27 @@
 
                         </div>
 
+                        {{-- MAIN VIDEO --}}
+                        <div class="mb-4">
+
+                            <label class="form-label fw-semibold">
+                                Main Product Video
+                            </label>
+
+                            <input
+                                type="file"
+                                name="main_video"
+                                class="form-control"
+                                accept=".mp4,.mov,.webm,.avi"
+                            >
+
+                            <small class="text-muted">
+                                MP4, MOV, WEBM or AVI.
+                                Maximum 20MB.
+                            </small>
+
+                        </div>
+
 
                         {{-- GALLERY IMAGES --}}
                         <div class="mb-3">

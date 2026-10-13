@@ -63,7 +63,7 @@
                                 @if($product->images->isNotEmpty())
 
                                     <img
-                                        src="{{ asset('storage/' . $product->images->first()->image) }}"
+                                        src="{{ Storage::disk('public')->url($product->images->first()->image) }}"
                                         class="card-img-top"
                                         alt="{{ $product->name }}"
                                         style="height: 210px; object-fit: cover;"
@@ -171,7 +171,7 @@
                             @if($product->images->isNotEmpty())
 
                                 <img
-                                    src="{{ asset('storage/' . $product->images->first()->image) }}"
+                                    src="{{ Storage::disk('public')->url($product->images->first()->image) }}"
                                     class="card-img-top"
                                     alt="{{ $product->name }}"
                                     style="height: 230px; object-fit: cover;"

@@ -136,7 +136,7 @@
                                         @if($product->main_image)
 
                                             <img
-                                                src="{{ asset('storage/' . $product->main_image) }}"
+                                                src="{{ Storage::disk('public')->url($product->main_image) }}"
                                                 alt="{{ $product->name }}"
                                                 width="60"
                                                 height="60"
@@ -270,7 +270,7 @@
 
                                             {{-- View --}}
                                             <a
-                                                href="{{ route('admin.products.show', $product) }}"
+                                                href="{{ route('admin.products.show', $product->id) }}"
                                                 class="btn btn-sm btn-info text-white"
                                             >
                                                 View
@@ -279,7 +279,7 @@
 
                                             {{-- Edit --}}
                                             <a
-                                                href="{{ route('admin.products.edit', $product) }}"
+                                                href="{{ route('admin.products.edit', $product->id) }}"
                                                 class="btn btn-sm btn-warning"
                                             >
                                                 Edit
@@ -288,7 +288,7 @@
 
                                             {{-- Delete --}}
                                             <form
-                                                action="{{ route('admin.products.destroy', $product) }}"
+                                                action="{{ route('admin.products.destroy', $product->id) }}"
                                                 method="POST"
                                                 onsubmit="return confirm('Are you sure you want to delete this product?');"
                                             >

@@ -195,6 +195,11 @@
 
 
                 <div class="card-body">
+                    @if($order->items->contains(fn ($item) => (bool) $item->availability_requested))
+                        <div class="alert alert-warning">
+                            This order includes an out-of-stock request. Confirm availability with the customer before processing.
+                        </div>
+                    @endif
 
                     <div class="table-responsive">
 
@@ -225,7 +230,7 @@
                                                 @if($item->product && $item->product->main_image)
 
                                                     <img
-                                                        src="{{ asset('storage/' . $item->product->main_image) }}"
+                                                        src="{{ Storage::disk('public')->url($item->product->main_image) }}"
                                                         alt="{{ $item->product_name }}"
                                                         width="60"
                                                         height="60"
@@ -250,6 +255,9 @@
                                                     <div class="fw-bold">
                                                         {{ $item->product_name }}
                                                     </div>
+                                                    @if($item->availability_requested)
+                                                        <span class="badge text-bg-warning mt-1">Availability confirmation required</span>
+                                                    @endif
 
                                                 </div>
 
@@ -312,7 +320,7 @@
                 <div class="card-body">
 
                     <form method="POST"
-                          action="{{ route('admin.orders.update', $order) }}">
+                          action="{{ route('admin.orders.update', $order->id) }}">
 
                         @csrf
                         @method('PUT')

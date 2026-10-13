@@ -169,7 +169,7 @@
                                     <td class="text-center">
 
                                         <a
-                                            href="{{ route('admin.support.show', $ticket) }}"
+                                            href="{{ route('admin.support.show', $ticket->id) }}"
                                             class="btn btn-sm btn-primary"
                                         >
 

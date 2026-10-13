@@ -74,7 +74,7 @@
                                     </td>
 
                                     <td>
-                                        <a href="{{ route('admin.customers.show', $customer) }}"
+                                        <a href="{{ route('admin.customers.show', $customer->id) }}"
                                            class="btn btn-sm btn-dark">
                                             View
                                         </a>

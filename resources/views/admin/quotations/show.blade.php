@@ -59,7 +59,7 @@
 
                 <div class="card-body">
 
-                    @if($quotation->user)
+                    @if($quotation->user || $quotation->customer_name || $quotation->customer_email)
 
                         <div class="text-center mb-4">
 
@@ -68,12 +68,12 @@
                                         mx-auto mb-3"
                                  style="width:80px;height:80px;font-size:32px;">
 
-                                {{ strtoupper(substr($quotation->user->name, 0, 1)) }}
+                                {{ strtoupper(substr($quotation->user->name ?? $quotation->customer_name, 0, 1)) }}
 
                             </div>
 
                             <h5 class="fw-bold mb-1">
-                                {{ $quotation->user->name }}
+                                {{ $quotation->user->name ?? $quotation->customer_name }}
                             </h5>
 
                             <p class="text-muted mb-0">
@@ -90,7 +90,7 @@
                             </small>
 
                             <strong>
-                                {{ $quotation->user->name }}
+                                {{ $quotation->user->name ?? $quotation->customer_name }}
                             </strong>
 
                         </div>
@@ -103,7 +103,7 @@
                             </small>
 
                             <strong>
-                                {{ $quotation->user->email }}
+                                {{ $quotation->user->email ?? $quotation->customer_email }}
                             </strong>
 
                         </div>
@@ -112,14 +112,21 @@
                         <div class="border rounded p-3">
 
                             <small class="text-muted d-block">
-                                Customer ID
+                                {{ $quotation->user ? 'Customer ID' : 'Account type' }}
                             </small>
 
                             <strong>
-                                #{{ $quotation->user->id }}
+                                {{ $quotation->user ? '#'.$quotation->user->id : 'Guest request' }}
                             </strong>
 
                         </div>
+
+                        @if($quotation->customer_phone)
+                            <div class="border rounded p-3">
+                                <small class="text-muted d-block">Phone</small>
+                                <strong>{{ $quotation->customer_phone }}</strong>
+                            </div>
+                        @endif
 
                     @else
 

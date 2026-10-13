@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,16 +36,11 @@ use App\Http\Controllers\Admin\RecommendationController;
 |--------------------------------------------------------------------------
 */
 
-use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\ProductController as CustomerProductController;
 use App\Http\Controllers\Customer\WishlistController;
 use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
-use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Customer\QuotationController as CustomerQuotationController;
-use App\Http\Controllers\Customer\ProfileController;
-use App\Http\Controllers\Customer\RecommendationController as CustomerRecommendationController;
-use App\Http\Controllers\Customer\SupportController as CustomerSupportController;
 
 
 /*
@@ -54,9 +50,37 @@ use App\Http\Controllers\Customer\SupportController as CustomerSupportController
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    $query = DB::table('products')
+        ->leftJoin('categories', 'categories.id', '=', 'products.category_id')
+        ->where('products.status', true)
+        ->select('products.id', 'products.name', 'products.description', 'products.price', 'products.main_image', 'categories.id as category_id', 'categories.name as category_name');
 
+    $search = trim((string) request()->query('search', ''));
+    $categoryId = request()->query('category');
+
+    if ($search !== '') {
+        $query->where(function ($query) use ($search) {
+            $query->where('products.name', 'like', '%'.$search.'%')
+                ->orWhere('products.description', 'like', '%'.$search.'%')
+                ->orWhere('products.sku', 'like', '%'.$search.'%')
+                ->orWhere('categories.name', 'like', '%'.$search.'%');
+        });
+    }
+
+    if ($categoryId) {
+        $query->where('products.category_id', $categoryId);
+    }
+
+    $products = $query->orderByDesc('products.created_at')
+        ->limit(8)
+        ->get();
+    $categories = DB::table('categories')
+        ->where('status', true)
+        ->orderBy('name')
+        ->get(['id', 'name']);
+
+    return view('storefront', compact('products', 'categories', 'search', 'categoryId'));
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -105,7 +129,7 @@ Route::post('/logout', function () {
 
     request()->session()->regenerateToken();
 
-    return redirect()->route('login');
+    return redirect('/');
 
 })->middleware('auth')->name('logout');
 
@@ -305,10 +329,7 @@ Route::middleware([
 Route::middleware([
     'auth',
     'role:customer',
-])
-->prefix('customer')
-->name('customer.')
-->group(function () {
+])->prefix('customer')->name('customer.')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
@@ -316,32 +337,6 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/dashboard', [
-        CustomerDashboardController::class,
-        'index'
-    ])->name('dashboard');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Products
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/products', [
-        CustomerProductController::class,
-        'index'
-    ])->name('products.index');
-
-    Route::get('/products/{product}', [
-        CustomerProductController::class,
-        'show'
-    ])->name('products.show');
-
-    Route::post('/products/{product}/order', [
-        CustomerOrderController::class,
-        'storeDirect'
-    ])->name('products.order');
 
 
     /*
@@ -350,86 +345,6 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/recommendations', [
-        CustomerRecommendationController::class,
-        'index'
-    ])->name('recommendations.index');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Wishlist
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/wishlist', [
-        WishlistController::class,
-        'index'
-    ])->name('wishlist.index');
-
-    Route::post('/wishlist/{product}', [
-        WishlistController::class,
-        'store'
-    ])->name('wishlist.store');
-
-    Route::delete('/wishlist/{product}', [
-        WishlistController::class,
-        'destroy'
-    ])->name('wishlist.destroy');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cart
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/cart', [
-        CartController::class,
-        'index'
-    ])->name('cart.index');
-
-    Route::post('/cart/{product}', [
-        CartController::class,
-        'store'
-    ])->name('cart.store');
-
-    Route::patch('/cart/{product}', [
-        CartController::class,
-        'update'
-    ])->name('cart.update');
-
-    Route::delete('/cart/{product}', [
-        CartController::class,
-        'destroy'
-    ])->name('cart.destroy');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Orders & Checkout
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/checkout', [
-        CustomerOrderController::class,
-        'checkout'
-    ])->name('checkout');
-
-    Route::post('/checkout', [
-        CustomerOrderController::class,
-        'store'
-    ])->name('checkout.store');
-
-    Route::get('/orders', [
-        CustomerOrderController::class,
-        'index'
-    ])->name('orders.index');
-
-    Route::get('/orders/{order}', [
-        CustomerOrderController::class,
-        'show'
-    ])->name('orders.show');
 
 
     /*
@@ -438,47 +353,6 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/notifications', [
-        NotificationController::class,
-        'index'
-    ])->name('notifications.index');
-
-    Route::post('/notifications/{id}/read', [
-        NotificationController::class,
-        'read'
-    ])->name('notifications.read');
-
-    Route::post('/notifications/read-all', [
-        NotificationController::class,
-        'readAll'
-    ])->name('notifications.readAll');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Quotations
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/quotations', [
-        CustomerQuotationController::class,
-        'index'
-    ])->name('quotations.index');
-
-    Route::get('/products/{product}/quotation', [
-        CustomerQuotationController::class,
-        'create'
-    ])->name('quotations.create');
-
-    Route::post('/products/{product}/quotation', [
-        CustomerQuotationController::class,
-        'store'
-    ])->name('quotations.store');
-
-    Route::get('/quotations/{quotation}', [
-        CustomerQuotationController::class,
-        'show'
-    ])->name('quotations.show');
 
 
     /*
@@ -487,15 +361,6 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/profile', [
-        ProfileController::class,
-        'index'
-    ])->name('profile.index');
-
-    Route::put('/profile', [
-        ProfileController::class,
-        'update'
-    ])->name('profile.update');
 
 
     /*
@@ -504,23 +369,40 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('support')
-        ->name('support.')
-        ->controller(CustomerSupportController::class)
-        ->group(function () {
+});
 
-            Route::get('/', 'index')
-                ->name('index');
+Route::get('/customer/dashboard', function () {
+    return redirect()->route('customer.products.index');
+})->middleware(['auth', 'role:customer'])->name('customer.dashboard');
 
-            Route::get('/create', 'create')
-                ->name('create');
 
-            Route::post('/', 'store')
-                ->name('store');
+/*
+|--------------------------------------------------------------------------
+| Public Customer Store
+|--------------------------------------------------------------------------
+*/
 
-            Route::get('/{supportTicket}', 'show')
-                ->name('show');
+Route::prefix('customer')->name('customer.')->group(function () {
+    Route::get('/products', [CustomerProductController::class, 'index'])->name('products.index');
+    Route::get('/products/{product}', [CustomerProductController::class, 'show'])->name('products.show');
+    Route::post('/products/{product}/order', [CustomerOrderController::class, 'storeDirect'])->name('products.order');
 
-        });
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/{product}', [WishlistController::class, 'store'])->name('wishlist.store');
+    Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/{product}', [CartController::class, 'store'])->name('cart.store');
+    Route::patch('/cart/{product}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{product}', [CartController::class, 'destroy'])->name('cart.destroy');
+
+    Route::get('/checkout', [CustomerOrderController::class, 'checkout'])->name('checkout');
+    Route::post('/checkout', [CustomerOrderController::class, 'store'])->name('checkout.store');
+    Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
+
+    Route::get('/quotations', [CustomerQuotationController::class, 'index'])->name('quotations.index');
+    Route::get('/products/{product}/quotation', [CustomerQuotationController::class, 'create'])->name('quotations.create');
+    Route::post('/products/{product}/quotation', [CustomerQuotationController::class, 'store'])->name('quotations.store');
+    Route::get('/quotations/{quotation}', [CustomerQuotationController::class, 'show'])->name('quotations.show');
 });

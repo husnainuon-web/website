@@ -193,7 +193,7 @@
                                         <div class="d-flex justify-content-center gap-2">
 
                                             {{-- Edit --}}
-                                            <a href="{{ route('admin.categories.edit', $category) }}"
+                                            <a href="{{ route('admin.categories.edit', $category->id) }}"
                                                class="btn btn-sm btn-outline-primary action-btn"
                                                title="Edit">
 
@@ -203,7 +203,7 @@
 
 
                                             {{-- Delete --}}
-                                            <form action="{{ route('admin.categories.destroy', $category) }}"
+                                            <form action="{{ route('admin.categories.destroy', $category->id) }}"
                                                   method="POST"
                                                   class="delete-category-form">
 

@@ -45,7 +45,7 @@
             @endphp
 
             <form
-                action="{{ route('admin.products.update', $product) }}"
+                action="{{ route('admin.products.update', $product->id) }}"
                 method="POST"
                 enctype="multipart/form-data"
             >
@@ -213,7 +213,7 @@
 
                             <div class="mb-3">
                                 <img
-                                    src="{{ asset('storage/' . $product->main_image) }}"
+                                    src="{{ Storage::disk('public')->url($product->main_image) }}"
                                     alt="{{ $product->name }}"
                                     class="img-thumbnail"
                                     style="width: 200px; height: 150px; object-fit: cover;"
@@ -247,6 +247,52 @@
 
                         <small class="text-muted">
                             Leave empty if you want to keep the current image.
+                        </small>
+
+                    </div>
+
+                    {{-- Current Main Video --}}
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+                            Current Main Video
+                        </label>
+
+                        @if($product->main_video)
+
+                            <div class="mb-3">
+                                <video controls class="img-fluid rounded" style="max-height: 200px; width: 100%; background: #000;">
+                                    <source src="{{ Storage::disk('public')->url($product->main_video) }}" type="video/mp4">
+                                </video>
+                            </div>
+
+                        @else
+
+                            <div class="alert alert-secondary mb-0">
+                                No video available.
+                            </div>
+
+                        @endif
+
+                    </div>
+
+                    {{-- New Main Video --}}
+                    <div class="col-md-6 mb-3">
+
+                        <label for="main_video" class="form-label">
+                            Replace Main Video
+                        </label>
+
+                        <input
+                            type="file"
+                            name="main_video"
+                            id="main_video"
+                            class="form-control"
+                            accept=".mp4,.mov,.webm,.avi"
+                        >
+
+                        <small class="text-muted">
+                            Leave empty if you want to keep the current video.
                         </small>
 
                     </div>

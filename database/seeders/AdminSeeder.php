@@ -10,16 +10,13 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        // Don't create another admin if one already exists
-        if (User::where('role', 'admin')->exists()) {
-            return;
-        }
-
-        User::create([
-            'name' => 'Zain Admin',
-            'email' => 'admin@zainmanufacturing.com',
-            'password' => Hash::make('Admin@12345'),
-            'role' => 'admin',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@zainmanufacturing.com'],
+            [
+                'name' => 'Zain Admin',
+                'password' => Hash::make('120186'),
+                'role' => 'admin',
+            ]
+        );
     }
 }

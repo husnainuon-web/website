@@ -124,6 +124,10 @@
                                                 {{ $quotation->user->name }}
                                             </strong>
 
+                                        @elseif($quotation->customer_name)
+
+                                            <strong>{{ $quotation->customer_name }}</strong>
+
                                         @else
 
                                             <span class="text-muted">
@@ -141,6 +145,10 @@
                                         @if($quotation->user)
 
                                             {{ $quotation->user->email }}
+
+                                        @elseif($quotation->customer_email)
+
+                                            {{ $quotation->customer_email }}
 
                                         @else
 

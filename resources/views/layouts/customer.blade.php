@@ -51,6 +51,23 @@
             z-index: 1000;
             overflow-y: auto;
             box-shadow: 0 0 24px rgba(22, 122, 66, 0.18);
+            transform: translateX(-100%);
+            transition: transform 0.25s ease;
+        }
+
+        .customer-sidebar.is-open {
+            transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(15, 23, 42, 0.45);
+        }
+
+        .sidebar-overlay[hidden] {
+            display: none;
         }
 
         /* BRAND */
@@ -192,15 +209,13 @@
         /* MAIN */
 
         .customer-main {
-            margin-left: 260px;
+            margin-left: 0;
             min-height: 100vh;
         }
 
         /* NAVBAR */
 
         .customer-navbar {
-            height: 75px;
-
             background: white;
 
             border-bottom: 1px solid #e5e7eb;
@@ -211,7 +226,23 @@
 
             justify-content: space-between;
 
-            padding: 0 30px;
+            gap: 16px;
+            min-height: 75px;
+            padding: 12px 30px;
+        }
+
+        .menu-toggle {
+            display: inline-flex;
+            width: 42px;
+            height: 42px;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            border: 0;
+            border-radius: 8px;
+            background: #f3f4f6;
+            color: #1f2937;
+            font-size: 21px;
         }
 
         .page-heading h4 {
@@ -224,6 +255,12 @@
 
         .page-heading small {
             color: #6b7280;
+        }
+
+        .navbar-account-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         /* NAVBAR NOTIFICATION */
@@ -331,24 +368,39 @@
             padding: 30px;
         }
 
-        /* MOBILE */
+        .customer-whatsapp-button {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 998;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 12px 18px;
+            border-radius: 999px;
+            background: #25d366;
+            color: #fff;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .customer-whatsapp-button:hover {
+            background: #1da851;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .customer-whatsapp-button:focus-visible {
+            outline: 3px solid #14532d;
+            outline-offset: 3px;
+        }
 
         @media (max-width: 768px) {
-
-            .customer-sidebar {
-                position: relative;
-
-                width: 100%;
-
-                height: auto;
-            }
-
-            .customer-main {
-                margin-left: 0;
-            }
-
             .customer-navbar {
                 padding: 0 15px;
+                flex-wrap: wrap;
             }
 
             .customer-content {
@@ -359,6 +411,9 @@
                 display: none;
             }
 
+            .navbar-account-actions {
+                margin-left: auto;
+            }
         }
 
     </style>
@@ -368,12 +423,13 @@
 
 <body>
 
+<div class="sidebar-overlay" id="sidebar-overlay" hidden></div>
 
 <!-- ================================================= -->
 <!-- SIDEBAR -->
 <!-- ================================================= -->
 
-<aside class="customer-sidebar">
+<aside class="customer-sidebar" id="customer-sidebar">
 
 
     <!-- BRAND -->
@@ -411,16 +467,16 @@
         </div>
 
 
-        <!-- DASHBOARD -->
+        <!-- HOME -->
 
         <a
-            href="{{ route('customer.dashboard') }}"
-            class="{{ request()->routeIs('customer.dashboard') ? 'active' : '' }}"
+            href="{{ url('/') }}"
+            class="{{ request()->is('/') ? 'active' : '' }}"
         >
 
             <i class="bi bi-house-door"></i>
 
-            Dashboard
+            Home
 
         </a>
 
@@ -467,13 +523,6 @@
         </a>
 
 
-        <!-- MY ACCOUNT -->
-
-        <div class="menu-title mt-3">
-            My Account
-        </div>
-
-
         <!-- MY ORDERS -->
 
         <a
@@ -502,113 +551,29 @@
         </a>
 
 
-        <!-- NOTIFICATIONS -->
-
-        <a
-            href="{{ route('customer.notifications.index') }}"
-            class="{{ request()->routeIs('customer.notifications.*') ? 'active' : '' }}"
-        >
-
-            <i class="bi bi-bell"></i>
-
-            Notifications
-
-            @php
-                $unreadNotificationsCount = Auth::user()
-                    ->unreadNotifications
-                    ->count();
-            @endphp
-
-            @if($unreadNotificationsCount > 0)
-
-                <span class="notification-badge">
-                    {{ $unreadNotificationsCount > 99 ? '99+' : $unreadNotificationsCount }}
-                </span>
-
-            @endif
-
-        </a>
-
-
-        <!-- PROFILE -->
-
-        <a
-            href="{{ route('customer.profile.index') }}"
-            class="{{ request()->routeIs('customer.profile.*') ? 'active' : '' }}"
-        >
-
-            <i class="bi bi-person"></i>
-
-            Profile
-
-        </a>
-
-
-        <!-- OTHER -->
-
         <div class="menu-title mt-3">
-            Other
+            Account
         </div>
 
-
-        <!-- RECOMMENDATIONS -->
-
-        <a
-            href="{{ route('customer.recommendations.index') }}"
-            class="{{ request()->routeIs('customer.recommendations.*') ? 'active' : '' }}"
-        >
-
-            <i class="bi bi-stars"></i>
-
-            Recommended For You
-
-        </a>
-
-
-        
-<!-- SUPPORT -->
-
-<a
-    href="{{ route('customer.support.index') }}"
-    class="{{ request()->routeIs('customer.support.*') ? 'active' : '' }}"
->
-
-    <i class="bi bi-headset"></i>
-
-    Support
-
-</a>
-
-
-
-
-        <!-- LOGOUT -->
-
-        <div class="mt-4">
-
+        @guest
+            <a href="{{ route('login') }}"><i class="bi bi-box-arrow-in-right"></i> Sign In</a>
+            <a href="{{ route('register') }}"><i class="bi bi-person-plus"></i> Register</a>
+        @else
             <form
                 method="POST"
                 action="{{ route('logout') }}"
             >
-
                 @csrf
-
                 <button
                     type="submit"
                     class="btn btn-link text-decoration-none w-100 text-start"
                     style="color:#d1d5db;"
                 >
-
                     <i class="bi bi-box-arrow-right me-2"></i>
-
-                    Logout
-
+                    Sign Out
                 </button>
-
             </form>
-
-        </div>
-
+        @endguest
 
     </div>
 
@@ -627,7 +592,11 @@
     <nav class="customer-navbar">
 
 
-        <div class="page-heading">
+        <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-controls="customer-sidebar" aria-expanded="false">
+            <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+
+        <div class="page-heading me-auto">
 
             <h4>
 
@@ -643,72 +612,18 @@
 
         </div>
 
-
-        <!-- RIGHT SIDE -->
-
-        <div class="d-flex align-items-center">
-
-
-            <!-- NOTIFICATION ICON -->
-
-            <div class="navbar-notification">
-
-                <a
-                    href="{{ route('customer.notifications.index') }}"
-                    title="Notifications"
-                >
-
-                    <i class="bi bi-bell"></i>
-
-                    @php
-                        $navbarUnreadCount = Auth::user()
-                            ->unreadNotifications
-                            ->count();
-                    @endphp
-
-                    @if($navbarUnreadCount > 0)
-
-                        <span class="count">
-                            {{ $navbarUnreadCount > 99 ? '99+' : $navbarUnreadCount }}
-                        </span>
-
-                    @endif
-
-                </a>
-
-            </div>
-
-
-            <!-- CUSTOMER PROFILE -->
-
-            <div class="customer-profile">
-
-
-                <div class="customer-info text-end">
-
-                    <strong>
-                        {{ Auth::user()->name }}
-                    </strong>
-
-                    <small>
-                        Customer
-                    </small>
-
-                </div>
-
-
-                <div class="customer-avatar">
-
-                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-
-                </div>
-
-
-            </div>
-
-
+        <div class="navbar-account-actions">
+            @guest
+                <a href="{{ route('login') }}" class="btn btn-outline-success btn-sm">Sign In</a>
+                <a href="{{ route('register') }}" class="btn btn-success btn-sm">Register</a>
+            @else
+                <span class="small text-muted d-none d-sm-inline">Hi, {{ auth()->user()->name }}</span>
+                <form method="POST" action="{{ route('logout') }}" class="m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">Sign Out</button>
+                </form>
+            @endguest
         </div>
-
 
     </nav>
 
@@ -724,6 +639,16 @@
 
 </main>
 
+<a
+    href="https://wa.me/923084557950?text=Assalam-o-Alaikum%2C%20I%20need%20help%20with%20Zain%20Manufacturing."
+    class="customer-whatsapp-button"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Contact Zain Manufacturing on WhatsApp"
+>
+    <i class="bi bi-whatsapp" aria-hidden="true"></i>
+    <span>WhatsApp</span>
+</a>
 
 <!-- Bootstrap JS -->
 
@@ -731,6 +656,28 @@
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
 </script>
 
+<script>
+    const menuButton = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('customer-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    function setMenuOpen(open) {
+        sidebar.classList.toggle('is-open', open);
+        overlay.hidden = !open;
+        menuButton.setAttribute('aria-expanded', String(open));
+    }
+
+    menuButton.addEventListener('click', () => {
+        setMenuOpen(!sidebar.classList.contains('is-open'));
+    });
+    overlay.addEventListener('click', () => setMenuOpen(false));
+    sidebar.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => setMenuOpen(false));
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') setMenuOpen(false);
+    });
+</script>
 
 </body>
 

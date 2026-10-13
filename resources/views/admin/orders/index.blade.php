@@ -137,7 +137,7 @@
 
                                     <td>
 
-                                        <a href="{{ route('admin.orders.show', $order) }}"
+                                        <a href="{{ route('admin.orders.show', $order->id) }}"
                                            class="btn btn-sm btn-dark">
                                             View
                                         </a>
